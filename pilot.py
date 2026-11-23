@@ -116,6 +116,25 @@ def flow(history, test):
 
 
 
+def residual(row, history, goal):
+    return row[goal] - typical(peers(row, history))[goal]
+
+
+@demo
+def blame(history, test):
+    worst_effort = max(test, key=lambda row: residual(row, history, "Effort-"))
+    effort_peers = peers(worst_effort, history)
+    large_defects = sorted(test, key=lambda row: residual(row, history, "Defects-"))[-5:]
+    return {"effort_project": worst_effort["idX"],
+            "effort_differences": {key: worst_effort[key] for key in worst_effort
+                                   if key.islower() and all(
+                                       p[key] != worst_effort[key] for p in effort_peers)},
+            "frequent_conditions_for_defect_outliers": Counter(
+                f"{key}={row[key]}" for row in large_defects for key in row
+                if key.islower() and row[key] != "?").most_common(8)}
+
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("skill", choices=DEMOS)
