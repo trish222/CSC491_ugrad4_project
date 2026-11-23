@@ -189,6 +189,17 @@ def fix(history, test):
 
 
 
+@demo
+def spot(history, test):
+    far = sorted(test, key=lambda row: distance(row, peers(row, history, 1)[0]),
+                 reverse=True)
+    unusual = sorted(test, key=lambda row: abs(residual(row, history, "Defects-")),
+                     reverse=True)
+    return {"proposals_to_review": [row["idX"] for row in far[:3]],
+            "records_to_double_check": [row["idX"] for row in unusual[:3]]}
+
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("skill", choices=DEMOS)
