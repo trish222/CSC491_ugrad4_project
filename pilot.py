@@ -152,6 +152,19 @@ def justify(history, test):
 
 
 
+def shortlist(history, proposals, budget, weights):
+    return sorted(proposals, key=lambda row: score(typical(peers(row, history)),
+                                                   history, weights))[:budget]
+
+
+@demo
+def choose(history, test):
+    return {label: [row["idX"] for row in shortlist(history, test, 4, weights)]
+            for label, weights in {"effort_and_defects": (0, 1, 1),
+                                   "defects_first": (0, 0.25, 1)}.items()}
+
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("skill", choices=DEMOS)
