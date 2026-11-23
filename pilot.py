@@ -200,6 +200,21 @@ def spot(history, test):
 
 
 
+@demo
+def race(history, test):
+    targets = typical(history)
+    reviewed = shortlist(history, test, 4, (0, 1, 1))
+    random_four = Random(491).sample(test, 4)
+    return {"effort_mae": {
+                "peer_estimate": mean(abs(residual(row, history, "Effort-")) for row in test),
+                "typical_effort": mean(abs(row["Effort-"] - targets["Effort-"]) for row in test)},
+            "review_budget": 4, "hits": {
+                label: sum(row["Effort-"] <= targets["Effort-"]
+                           and row["Defects-"] <= targets["Defects-"] for row in rows)
+                for label, rows in {"shortlist": reviewed, "random": random_four}.items()}}
+
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("skill", choices=DEMOS)
