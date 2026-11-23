@@ -73,6 +73,34 @@ def guess(history, test):
 
 
 
+def matched_comparison(history, feature, goal):
+    levels = ("vl", "l", "n", "h", "vh", "xh")
+    high = [row for row in history if row[feature] in levels[3:]]
+    low = [row for row in history if row[feature] in levels[:3]]
+    gaps = []
+    for row in high:
+        if not low:
+            break
+        peer = min(low, key=lambda other: distance(row, other, (feature,)))
+        low.remove(peer)
+        gaps.append(row[goal] - peer[goal])
+    wins = sum(gap < 0 for gap in gaps)
+    losses = sum(gap > 0 for gap in gaps)
+    from math import comb
+    total = wins + losses
+    p = min(1.0, 2 * sum(comb(total, i) for i in range(min(wins, losses) + 1))
+            / (2 ** total))
+    return {"pairs": len(gaps), "median_difference": median(gaps) if gaps else None,
+            "sign_test_p": p, "evidence_of_lower_outcome": wins > losses and p <= 0.025}
+
+
+@demo
+def certify(history, test):
+    return {"analyst_capability": matched_comparison(history, "acap", "Effort-"),
+            "tool_support": matched_comparison(history, "tool", "Defects-")}
+
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("skill", choices=DEMOS)
