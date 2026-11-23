@@ -65,6 +65,14 @@ def split(seed):
     return rows[20:], rows[:20]
 
 
+@demo
+def guess(history, test):
+    estimate = typical(peers(test[0], history))
+    return {"effort_person_months": estimate["Effort-"],
+            "defects": estimate["Defects-"]}
+
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("skill", choices=DEMOS)
