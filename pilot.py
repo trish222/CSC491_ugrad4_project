@@ -135,6 +135,23 @@ def blame(history, test):
 
 
 
+@demo
+def justify(history, test):
+    budget = typical(history)["Effort-"]
+    ranked = sorted(test, key=lambda row: guess(history, [row])["effort_person_months"])
+    low = [row for row in ranked if guess(history, [row])["effort_person_months"] <= budget]
+    high = [row for row in ranked if guess(history, [row])["effort_person_months"] > budget]
+    pair = min(((a, b) for a in low for b in high),
+               key=lambda ab: distance(*ab), default=None)
+    rows = [test[0], *pair] if pair else [test[0]]
+    return {"budget": budget, "opposite_ratings_found": pair is not None, "evidence": [
+        {"project": row["idX"], "estimate": guess(history, [row]),
+         "past_projects": [{"id": p["idX"], "effort": p["Effort-"]}
+                           for p in peers(row, history)]}
+        for row in rows]}
+
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("skill", choices=DEMOS)
