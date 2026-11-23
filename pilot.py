@@ -101,6 +101,21 @@ def certify(history, test):
 
 
 
+@demo
+def flow(history, test):
+    targets = typical(history)
+    total = 0
+    results = []
+    for row in test:
+        estimate = guess(history, [row])
+        total += (row["Effort-"] <= targets["Effort-"]
+                  and row["Defects-"] <= targets["Defects-"])
+        results.append({"project": row["idX"], "met_targets_so_far": total,
+                        "budget_alert": estimate["effort_person_months"] > targets["Effort-"]})
+    return {"targets": targets, "arrivals": results}
+
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("skill", choices=DEMOS)
