@@ -62,7 +62,10 @@ def remember(history, test):
 def split(seed):
     rows = load()
     Random(seed).shuffle(rows)
-    return rows[20:], rows[:20]
+    holdout_ids = {row["idX"] for row in rows[:20]}
+    history = [row for row in rows if row["idX"] not in holdout_ids]
+    holdout = [row for row in rows if row["idX"] in holdout_ids]
+    return history, holdout
 
 
 @demo
