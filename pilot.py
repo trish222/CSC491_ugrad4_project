@@ -165,6 +165,30 @@ def choose(history, test):
 
 
 
+@demo
+def fix(history, test):
+    proposal = test[0]
+    levels = ("vl", "l", "n", "h", "vh", "xh")
+    options = []
+    for feature in ("tool", "pmat", "docu"):
+        old = proposal[feature]
+        observed = {row[feature] for row in history}
+        if old in levels:
+            for new in observed.intersection(levels[levels.index(old) + 1:]):
+                options.append((levels.index(new) - levels.index(old), feature, new,
+                                guess(history, [dict(proposal, **{feature: new})])))
+    baseline = guess(history, [proposal])
+    targets = typical(history)
+    result = {"baseline": baseline}
+    for metric, goal in (("effort_person_months", "Effort-"), ("defects", "Defects-")):
+        feasible = [option for option in options if
+                    option[3][metric] <= targets[goal] and option[3][metric] < baseline[metric]]
+        result[metric] = min(feasible, default=None,
+                             key=lambda option: (option[0], option[3][metric], option[1]))
+    return result
+
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("skill", choices=DEMOS)
